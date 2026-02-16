@@ -1,13 +1,14 @@
-const CACHE_NAME = "cache-v1";
+const CACHE_NAME = "cache-v2";
+const STATIC_FILES = [
+  "./",
+  "./index.html",
+  "./main.js"
+];
 
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll([
-        "./",
-        "./index.html",
-        "./main.js"
-      ]);
+      return cache.addAll(STATIC_FILES);
     })
   );
   self.skipWaiting();
@@ -26,17 +27,18 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      caches.match("./index.html")
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(response => {
-      if (response) {
-        return response;
-      }
-      return fetch(event.request).then(networkResponse => {
-        return caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      });
+      return response || fetch(event.request);
     })
   );
+
 });
