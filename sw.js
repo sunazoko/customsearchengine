@@ -1,8 +1,10 @@
-const CACHE_NAME = "cache-v2";
+const CACHE_NAME = "cache-v4";
+const BASE_PATH = "/customsearchengine/";
+
 const STATIC_FILES = [
-  "./",
-  "./index.html",
-  "./main.js"
+  BASE_PATH,
+  BASE_PATH + "index.html",
+  BASE_PATH + "main.js"
 ];
 
 self.addEventListener("install", event => {
@@ -30,7 +32,7 @@ self.addEventListener("fetch", event => {
 
   if (event.request.mode === "navigate") {
     event.respondWith(
-      caches.match("./index.html")
+      caches.match(BASE_PATH + "index.html")
     );
     return;
   }
