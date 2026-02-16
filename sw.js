@@ -1,4 +1,4 @@
-const CACHE_NAME = "cache-v4";
+const CACHE_NAME = "test-cache-v1";
 const BASE_PATH = "/customsearchengine/";
 
 const STATIC_FILES = [
@@ -20,8 +20,8 @@ self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
+        keys.filter(k => k !== CACHE_NAME)
+            .map(k => caches.delete(k))
       );
     })
   );
@@ -30,17 +30,21 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
 
+  // Navigation requests
   if (event.request.mode === "navigate") {
+    console.log("NAVIGATION FROM CACHE:", event.request.url);
+
     event.respondWith(
       caches.match(BASE_PATH + "index.html")
     );
     return;
   }
 
+  // All other requests are blocked
+  console.log("BLOCKED:", event.request.url);
+
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
+    Promise.reject("NETWORK BLOCKED")
   );
 
 });
